@@ -28,19 +28,10 @@ object Driver {
   def parseArgs(args: Array[String]): List[Token] = {
     for (arg <- args.toList)
       yield {
-        val num = fancyToInt(arg)
-        if (num.isDefined) {
-          Operand(num.get)
-        } else {
-          Plus
+        arg match {
+          case ContainsInt(num) => Operand(num)
+          case ContainsPlus(plus) => plus
         }
       }
   }
-
-  def fancyToInt(arg: String): Option[Int] =
-    try {
-      Some(arg.toInt)
-    } catch {
-      case _: NumberFormatException => None
-    }
 }
