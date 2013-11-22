@@ -9,11 +9,11 @@ object ContainsInt {
 }
 
 object ContainsPlus {
-  def unapply(x: String): Option[Plus.type] = {
-    if (x == "+") {
-      Some(Plus)
-    } else {
-      None
-    }
+  def unapply(x: String): Option[Operator] = x match {
+    case "+" => Some(Plus)
+    case "-" => Some(Minus)
+    case "*" => Some(Times)
+    case "/" => Some(Divide)
+    case _   => None
   }
 }

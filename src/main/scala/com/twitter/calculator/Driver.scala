@@ -10,7 +10,7 @@ object Driver {
       if (token.isInstanceOf[Operand]) {
         stack.push(token.asInstanceOf[Operand].num)
       } else {
-        stack.push(stack.pop() + stack.pop())
+        stack.push(token.asInstanceOf[Operator](stack.pop(), stack.pop()))
       }
     }
     val result = if (stack.empty) {
@@ -30,7 +30,7 @@ object Driver {
       yield {
         arg match {
           case ContainsInt(num) => Operand(num)
-          case ContainsPlus(plus) => plus
+          case ContainsPlus(operator) => operator
         }
       }
   }
