@@ -4,15 +4,14 @@ import java.util.Stack
 
 object Driver {
   def main(args: Array[String]) {
-    val list = parseArgs(args)
     val stack = new Stack[Int]()
-    for (token <- list) {
-      if (token.isInstanceOf[Operand]) {
-        stack.push(token.asInstanceOf[Operand].num)
-      } else {
-        stack.push(token.asInstanceOf[Operator](stack.pop(), stack.pop()))
+    for (either <- args map parseArg) {
+      either match {
+        case Left(num) => stack.push(num)
+        case Right(operator) => stack.push(operator(stack.pop(), stack.pop))
       }
     }
+
     val result = if (stack.empty) {
       throw new Exception("why is your stack empty")
     } else {
@@ -25,13 +24,8 @@ object Driver {
     }
   }
 
-  def parseArgs(args: Array[String]): List[Token] = {
-    for (arg <- args.toList)
-      yield {
-        arg match {
-          case ContainsInt(num) => Operand(num)
-          case ContainsPlus(operator) => operator
-        }
-      }
+  def parseArg(arg: String): Either[Int, (Int, Int) => Int] = arg match {
+    case Operand(num) => Left(num)
+    case Operator(fn) => Right(fn)
   }
 }
