@@ -4,27 +4,37 @@ import java.util.Stack
 
 object Driver {
   def main(args: Array[String]) {
-    val stack = new Stack[Int]()
-    for (either <- args map parseArg) {
-      either match {
-        case Left(num) => stack.push(num)
-        case Right(operator) => stack.push(operator(stack.pop(), stack.pop))
-      }
-    }
+    println(evaluate(args))
+  }
 
-    val result = if (stack.empty) {
-      throw new Exception("why is your stack empty")
-    } else {
-      stack.pop()
-    }
-    if (!stack.empty) {
-      throw new Exception("why is your stack not empty?")
-    } else {
-      println(result)
+  def stackify(args: Array[String]): List[Int] = {
+    val eithers = args map parseArg
+    recursiveStackify(eithers, Nil)
+  }
+
+  type Token = Either[Int, (Int, Int) => Int]
+
+  def recursiveStackify(args: Array[Token], stack: List[Int]): List[Int] = {
+    if (args.isEmpty)
+      stack
+    else {
+      val stk = args.head match {
+        case Left(num) => num :: stack
+        case Right(operator) =>
+          operator(stack.head, stack.tail.head) :: stack.tail.tail
+      }
+      recursiveStackify(args.tail, stk)
     }
   }
 
-  def parseArg(arg: String): Either[Int, (Int, Int) => Int] = arg match {
+  def evaluate(args: Array[String]): Int = {
+    stackify(args) match {
+      case x :: Nil => x
+      case _ => throw new Exception("stack did not have one element")
+    }
+  }
+
+  def parseArg(arg: String): Token = arg match {
     case Operand(num) => Left(num)
     case Operator(fn) => Right(fn)
   }
